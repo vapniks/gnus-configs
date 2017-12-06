@@ -99,11 +99,14 @@
     gnus-group-line-format
     gnus-group-mode-line-format
     gnus-summary-line-format
-    gnus-topic-alist
     gnus-topic-line-format
+    gnus-topic-alist
+    gnus-topic-topology
     gnus-topic-mode
-    gnus-topic-topology)
-  "List of variables to be saved by `gnus-configs-save'."
+    gnus-group-listed-groups)
+  "List of variables to be saved by `gnus-configs-save'.
+Note: `gnus-group-listed-groups' will actually be called as a function
+to get the list of currently listed groups."
   :group 'gnus-configs
   :type '(repeat (variable :tag "Variable")))
 
@@ -118,50 +121,64 @@ start with \";; Gnus config file\"."
 ;;;###autoload
 (defun gnus-configs-load (filename)
   "Check FILENAME is a valid gnus config file, and load it.
-When called interactively prompt the user for a file in `gnus-configs-directory'."
-  (interactive (list (ido-read-file-name
-		      "Gnus config file: "
-		      (if (file-directory-p gnus-configs-directory)
-			  gnus-configs-directory
-			(error "Invalid configs directory: %s" gnus-configs-directory))
-		      nil t)))
-  (unless (file-readable-p filename)
-    (error "Unable to read config file: %s" filename))
-  (with-temp-buffer (insert-file-contents filename)
-		    (unless (string-match "^;+ *GNUS CONFIG FILE" (buffer-string))
-		      (error "Invalid gnus config file: %s" filename))
-		    (eval-buffer)))
+When called interactively prompt the user for a file in `gnus-configs-directory'.
+If a prefix arg is supplied then call `gnus-configs-save' instead."
+  (interactive (list (or current-prefix-arg
+			 (ido-read-file-name
+			  "Load Gnus config file: "
+			  (if (file-directory-p gnus-configs-directory)
+			      gnus-configs-directory
+			    (error "Invalid configs directory: %s" gnus-configs-directory))
+			  nil t))))
+  (if current-prefix-arg
+      (let (current-prefix-arg)
+	(call-interactively 'gnus-configs-save))
+    (unless (file-readable-p filename)
+      (error "Unable to read config file: %s" filename))
+    (with-temp-buffer (insert-file-contents filename)
+		      (unless (string-match "^;+ *GNUS CONFIG FILE" (buffer-string))
+			(error "Invalid gnus config file: %s" filename))
+		      (eval-buffer))))
 
 ;;;###autoload
 (defun gnus-configs-save (filename)
   "Save the values of `gnus-configs-variables' in FILENAME.
-When called interactively, prompt the user for a file in `gnus-configs-directory'."
+When called interactively, prompt the user for a file in `gnus-configs-directory'.
+If a prefix arg is supplied then call `gnus-configs-load' instead."
   (interactive (list (ido-read-file-name
-		      "Gnus config file: "
+		      "Save Gnus config file: "
 		      (if (file-directory-p gnus-configs-directory)
 			  gnus-configs-directory
 			(if (not (y-or-n-p (format "Configs dir \"%s\" doesnt exist, create it? "
 						   gnus-configs-directory)))
 			    (error "Set gnus-configs-directory to an existing directory")
 			  (make-directory gnus-configs-directory t)
-			  gnus-configs-directory))
-		      nil nil ".el")))
-  (unless (file-writable-p filename)
-    (error "Unable to write to %s" filename))
-  (with-temp-file filename
-    (insert ";; GNUS CONFIG FILE\n")
-    (dolist (var gnus-configs-variables)
-      (let* ((name (symbol-name var)))
-	(insert (cl-case var
-		  (gnus-topic-mode
-		   (concat "(with-current-buffer \"" gnus-group-buffer "\" (gnus-topic-mode "
-			   (if (with-current-buffer gnus-group-buffer (symbol-value var))
-			       "1"
-			     "-1")
-			   ") (gnus-group-list-groups))\n"))
-		  (t (concat "(setq " name " '" (prin1-to-string (symbol-value var)) ")\n"))))))
-    (insert "\n;; END GNUS CONFIG FILE")))
-
+			  gnus-configs-directory)))))
+  (if current-prefix-arg
+      (let (current-prefix-arg)
+	(call-interactively 'gnus-configs-load))
+    (unless (file-writable-p filename)
+      (error "Unable to write to %s" filename))
+    (with-temp-file filename
+      (insert ";; GNUS CONFIG FILE\n")
+      (dolist (var gnus-configs-variables)
+	(let* ((name (symbol-name var)))
+	  (insert (cl-case var
+		    (gnus-topic-mode
+		     (concat "(with-current-buffer gnus-group-buffer (gnus-topic-mode "
+			     (if (with-current-buffer gnus-group-buffer (symbol-value var))
+				 "1"
+			       "-1")
+			     "))\n"))
+		    (gnus-group-listed-groups "")
+		    (t (concat "(setq " name " '" (prin1-to-string (symbol-value var)) ")\n"))))))
+      (insert "(gnus-group-list-groups)\n")
+      (if (memq 'gnus-group-listed-groups gnus-configs-variables)
+	  (insert (concat "(with-current-buffer gnus-group-buffer (gnus-group-list-matching nil "
+			  (prin1-to-string
+			   (with-current-buffer gnus-group-buffer
+			     (regexp-opt (gnus-group-listed-groups)))) "))\n")))
+      (insert "\n;; END GNUS CONFIG FILE"))))
 
 (provide 'gnus-configs)
 
