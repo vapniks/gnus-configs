@@ -174,7 +174,7 @@ If a prefix arg is supplied then call `gnus-configs-load' instead."
 		    (t (concat "(setq " name " '" (prin1-to-string (symbol-value var)) ")\n"))))))
       (insert "(gnus-group-list-groups)\n")
       (if (memq 'gnus-group-listed-groups gnus-configs-variables)
-	  (insert (concat "(with-current-buffer gnus-group-buffer (gnus-group-list-matching nil "
+	  (insert (concat "(with-current-buffer gnus-group-buffer (gnus-group-list-matching gnus-level-unsubscribed "
 			  (prin1-to-string
 			   (with-current-buffer gnus-group-buffer
 			     (regexp-opt (gnus-group-listed-groups)))) "))\n")))
