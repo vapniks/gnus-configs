@@ -7,9 +7,9 @@
 ;; Copyleft (Ↄ) 2017, Joe Bloggs, all rites reversed.
 ;; Created: 2017-12-06 00:25:29
 ;; Version: 0.1
-;; Last-Updated: 2017-12-06 00:25:29
+;; Last-Updated: Wed Dec  6 00:36:10 2017
 ;;           By: Joe Bloggs
-;;     Update #: 1
+;;     Update #: 2
 ;; URL: https://github.com/vapniks/gnus-configs
 ;; Keywords: comm convenience
 ;; Compatibility: GNU Emacs 25.2.1
@@ -41,12 +41,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Commentary: 
-;;
-;; Bitcoin donations gratefully accepted: 1ArFina3Mi8UDghjarGqATeBgXRDWrsmzo
-;;
-;; Save/restore gnus display variables.
-;; A separate elisp file is created in `gnus-configs-directory' for each config.
-;; 
+
+;; Save/restore gnus display variables
+;; Each config is stored in a separate file in `gnus-configs-directory'.
+
 ;;;;;;;;
 
 ;;; Commands:
@@ -55,10 +53,8 @@
 ;;
 ;;  `gnus-configs-load'
 ;;    Check FILENAME is a valid gnus config file, and load it.
-;;    Keybinding: M-x gnus-configs-load
 ;;  `gnus-configs-save'
 ;;    Save the values of `gnus-configs-variables' in FILENAME.
-;;    Keybinding: M-x gnus-configs-save
 ;;
 ;;; Customizable Options:
 ;;

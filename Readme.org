@@ -7,15 +7,18 @@
    (you don't need to do this for ~/.emacs.d - it's added by default).
  - Add the following to your ~/.emacs startup file: (require 'gnus-configs)
 
-** Commands
-*** gnus-configs-load
+* Description
+Save/restore gnus display variables.
+Each config is stored in a separate file in `gnus-configs-directory'.
+* Commands
+** gnus-configs-load
 =(gnus-configs-load FILENAME)=
 Check FILENAME is a valid gnus config file, and load it.
-*** gnus-configs-save
+** gnus-configs-save
 =(gnus-configs-save FILENAME)=
 Save the values of ‘gnus-configs-variables’ in FILENAME.
-** Options
-*** gnus-configs-directory
+* Options
+** gnus-configs-directory
 Directory in which to save config files.
-*** gnus-configs-variables
+** gnus-configs-variables
 List of variables to be saved by ‘gnus-configs-save’
