@@ -166,9 +166,8 @@ If a prefix arg is supplied then call `gnus-configs-load' instead."
 	  (insert (cl-case var
 		    (gnus-topic-mode
 		     (concat "(with-current-buffer gnus-group-buffer (gnus-topic-mode "
-			     (if (with-current-buffer gnus-group-buffer (symbol-value var))
-				 "1"
-			       "-1")
+			     (if (with-current-buffer gnus-group-buffer gnus-topic-mode)
+				 "1" "-1")
 			     "))\n"))
 		    (gnus-group-listed-groups "")
 		    (t (concat "(setq " name " '" (prin1-to-string (symbol-value var)) ")\n"))))))
